@@ -6,11 +6,11 @@ conn = sqlite3.connect('db/ZagoskyDB.db', check_same_thread=False)
 cursor = conn.cursor()
 
 
-details = ['Detail_Name','Number_Of_Details']
+details = ['Detail_Name','Name_DCE','Workshop','Number_Of_Details']
 
 
-def db_details_val(Detail_Name: str,Number_Of_Details: int):
-    cursor.execute('INSERT INTO Details (Detail_Name,Number_Of_Details) VALUES (?,?)', (Detail_Name,Number_Of_Details))
+def db_details_val(Detail_Name: str,Name_DCE: str,Workshop: int,Number_Of_Details: int):
+    cursor.execute('INSERT INTO Details (Detail_Name,Name_DCE,Workshop,Number_Of_Details) VALUES (?,?,?,?)', (Detail_Name,Name_DCE,Workshop,Number_Of_Details))
     conn.commit()
 
 
@@ -65,15 +65,31 @@ def get_Detail_Name(message,bot):
     result = message.text.lower()
     details[0] = result
 
-    bot.send_message(message.chat.id, "Отлично, теперь введите количество деталей")
-    bot.register_next_step_handler(message, get_Number_Of_Details,bot)
+    bot.send_message(message.chat.id, "Введите сборочное название детали")
+    bot.register_next_step_handler(message, get_Name_DCE,bot)
+
+
+def get_Name_DCE(message,bot):
+    result = message.text.lower()
+    details[1] = result
+
+    bot.send_message(message.chat.id, "Введите цех производства детали")
+    bot.register_next_step_handler(message, get_Workshop, bot)
+
+
+def get_Workshop(message,bot):
+    result = message.text.lower()
+    details[2] = result
+
+    bot.send_message(message.chat.id, "Введите количество имеющихся деталей")
+    bot.register_next_step_handler(message, get_Number_Of_Details, bot)
 
 
 def get_Number_Of_Details(message,bot):
     result = message.text.lower()
-    details[1] = result
+    details[3] = result
 
-    db_details_val(Detail_Name=details[0], Number_Of_Details=details[1])
+    db_details_val(Detail_Name=details[0],Name_DCE=details[1],Workshop=details[2],Number_Of_Details=details[3])
 
     bot.send_message(message.chat.id, "Добавлена новая деталь: ")
 
@@ -88,8 +104,8 @@ def DetailsList(message,bot):
     result = cursor.fetchall()
 
     for row in result:
-        detail_id, detail_name = row
-        detail_info = f"ID: {detail_id}\nНаим.Детали: {detail_name}"
+        detail_id, detail_name,detail_name_DCE,detail_workshop,number_of_Details = row
+        detail_info = f"ID: {detail_id}\nНаименование детали: {detail_name}\nСборочное назв. детали: {detail_name_DCE}\nЦех: {detail_workshop}\nКоличество деталей: {number_of_Details}"
         bot.send_message(message.chat.id, detail_info)
 
     DetailsMenu(message,bot)
