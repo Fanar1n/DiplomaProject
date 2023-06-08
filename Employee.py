@@ -9,21 +9,24 @@ cursor = conn.cursor()
 colums = ['First_Name','Second_Name','Third_Name','Email','Phone_Number','Date_Of_Birth','Address','Department','Position','Hire_Date','Employment_Status','Word_Schedule','Vacation_Days']
 
 
-def db_table_val(First_Name: str,Second_Name: str,Third_Name: str,Email: str,Phone_Number: str,Date_Of_Birth: str,Address: str,Department: str,Position: str,Hire_Date: str,Employment_Status: str,Word_Schedule : str,Vacation_Days: int):
-    cursor.execute('INSERT INTO Employees (First_Name,Second_Name,Third_Name,Email,Phone_Number,Date_Of_Birth,Address,Department,Position,Hire_Date,Employment_Status,Word_Schedule,Vacation_Days) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?)', (First_Name, Second_Name, Third_Name, Email, Phone_Number, Date_Of_Birth , Address,Department,Position,Hire_Date,Employment_Status,Word_Schedule,Vacation_Days))
+def db_table_val(First_Name: str,Second_Name: str,Third_Name: str,Email: str,Phone_Number: str,Date_Of_Birth: str,Address: str,Department: str,Position: str,Hire_Date: str,Employment_Status: str,Word_Schedule : str,Vacation_Days: int, Employee_ID: int):
+    cursor.execute('INSERT INTO Employees (First_Name,Second_Name,Third_Name,Email,Phone_Number,Date_Of_Birth,Address,Department,Position,Hire_Date,Employment_Status,Word_Schedule,Vacation_Days,Employee_ID) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?)', (First_Name, Second_Name, Third_Name, Email, Phone_Number, Date_Of_Birth , Address,Department,Position,Hire_Date,Employment_Status,Word_Schedule,Vacation_Days,Employee_ID))
     conn.commit()
+
+
+def RegistrationEmployee(message,bot):
+    bot.send_message(message.chat.id, 'Вам необходимо зарегестрироваться,введите своё имя')
+    bot.register_next_step_handler(message, get_First_Name, bot)
 
 
 def EmployeeMenu(message,bot):
     keyboard = telebot.types.ReplyKeyboardMarkup(row_width=1)
-    addEmployeeButton = telebot.types.KeyboardButton("1")
-    editEmployeeButton = telebot.types.KeyboardButton("2")
+    editEmployeeButton = telebot.types.KeyboardButton("1")
     backButton = telebot.types.KeyboardButton("Назад")
-    keyboard.add(addEmployeeButton, editEmployeeButton, backButton)
+    keyboard.add(editEmployeeButton, backButton)
     bot.send_message(message.chat.id, 'Выберите пункт меню:')
-    bot.send_message(message.chat.id, "\n1. Добавить нового сотрудника"
-                                      "\n2. Найти сотрудника"
-                                      "\n3. Назад", reply_markup=keyboard)
+    bot.send_message(message.chat.id, "\n1. Найти сотрудника"
+                                      "\n2. Назад", reply_markup=keyboard)
     bot.register_next_step_handler(message, Employee_Menu_Handler,bot)
 
 
@@ -260,16 +263,16 @@ def get_Word_Schedule(message,bot):
 
 def get_Vacation_Days(message,bot):
     result = message.text
-    colums[12] = result
+    colums[13] = result
 
     db_table_val(First_Name=colums[0], Second_Name=colums[1], Third_Name=colums[2],
                          Email=colums[3], Phone_Number=colums[4], Date_Of_Birth=colums[5], Address=colums[6],
                          Department=colums[7], Position=colums[8], Hire_Date=colums[9], Employment_Status=colums[10],
-                         Word_Schedule=colums[11], Vacation_Days=colums[12])
+                         Word_Schedule=colums[11], Vacation_Days=colums[12],Employee_ID=message.chat.id)
 
-    bot.send_message(message.chat.id, "Добавлен новый сотрудник: ")
+    bot.send_message(message.chat.id, "Вы успешно зарегестрированны")
 
-    employee_info = f"Имя: {colums[0]}\nФамилия: {colums[1]}\nОтчество: {colums[2]}\nEmail: {colums[3]}\nНомер телефона: {colums[4]}\nДата рождения: {colums[5]}\nАдрес: {colums[6]}\nОтдел: {colums[7]}\nДолжность: {colums[8]}\nДата приема на работу: {colums[9]}\nСтатус занятости: {colums[10]}\nРабочий график: {colums[11]}\nКоличество отпускных дней: {colums[12]}"
+    employee_info = f"Имя: {colums[0]}\nФамилия: {colums[1]}\nОтчество: {colums[2]}\nEmail: {colums[3]}\nНомер телефона: {colums[4]}\nДата рождения: {colums[5]}\nАдрес: {colums[6]}\nОтдел: {colums[7]}\nДолжность: {colums[8]}\nДата приема на работу: {colums[9]}\nСтатус занятости: {colums[10]}\nРабочий график: {colums[11]}\nКоличество отпускных дней: {colums[12]}\nEmployee_ID: {colums[13]}"
     bot.send_message(message.chat.id, employee_info)
 
     EmployeeMenu(message,bot)
