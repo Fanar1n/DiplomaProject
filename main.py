@@ -3,6 +3,7 @@ import sqlite3
 import Employee
 import Detail
 import EmployeeReport
+import ProductionReport
 
 
 bot = telebot.TeleBot("6104580443:AAGtmGn996paSF2TTiXxcboDC-R4jPtYqr4")
@@ -22,11 +23,13 @@ def start_message(message):
         employeeButton = telebot.types.KeyboardButton("1")
         detailsButton = telebot.types.KeyboardButton("2")
         employeeReportButton = telebot.types.KeyboardButton("3")
-        keyboard.add(employeeButton, detailsButton,employeeReportButton)
+        productionReportButton = telebot.types.KeyboardButton("4")
+        keyboard.add(employeeButton, detailsButton,employeeReportButton,productionReportButton)
         bot.send_message(message.chat.id, "Выберите пункт из меню что вы хотите сделать"
                                           "\n1.Сотрудники"
                                           "\n2.Детали"
-                                          "\n3.Отчёт сотрудника", reply_markup=keyboard)
+                                          "\n3.Отчёт сотрудника"
+                                          "\n Отчёт предприятия", reply_markup=keyboard)
     else:
         Employee.RegistrationEmployee(message, bot)
 
@@ -39,8 +42,13 @@ def get_text_messages(message):
         Detail.DetailsMenu(message,bot)
     elif message.text == '3':
         EmployeeReport.EmployeeReportMenu(message,bot)
+    elif message.text == '4':
+        ProductionReport.ProductionReportMenu(message,bot)
     else:
         start_message(message)
 
 
 bot.polling()
+
+
+
