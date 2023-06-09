@@ -29,7 +29,7 @@ def start_message(message):
                                           "\n1.Сотрудники"
                                           "\n2.Детали"
                                           "\n3.Отчёт сотрудника"
-                                          "\n Отчёт предприятия", reply_markup=keyboard)
+                                          "\n4.Отчёт предприятия за Год", reply_markup=keyboard)
     else:
         Employee.RegistrationEmployee(message, bot)
 
@@ -43,7 +43,7 @@ def get_text_messages(message):
     elif message.text == '3':
         EmployeeReport.EmployeeReportMenu(message,bot)
     elif message.text == '4':
-        ProductionReport.ProductionReportMenu(message,bot)
+        ProductionReport.ProductionReport(message,bot)
     else:
         start_message(message)
 
