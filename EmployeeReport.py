@@ -75,11 +75,12 @@ def get_ID_Of_Details(message,bot):
     result = message.text.lower()
     report[0] = result
 
+    Detail_Id = result
     bot.send_message(message.chat.id, 'Введите количество произведённых деталей')
-    bot.register_next_step_handler(message, get_Amount_Of_Details, bot)
+    bot.register_next_step_handler(message, get_Amount_Of_Details, bot,Detail_Id)
 
 
-def get_Amount_Of_Details(message,bot):
+def get_Amount_Of_Details(message,bot,Details_Id):
     result = message.text.lower()
     report[1] = result
     report[2] = datetime.datetime.now()
@@ -91,6 +92,12 @@ def get_Amount_Of_Details(message,bot):
 
     amount_info = f"ID произведённой детали: {report[0]}\nКоличество произведённых деталей: {report[1]}\nВремя занесения отчёта: {report[2]}"
     bot.send_message(message.chat.id, amount_info)
+
+    cursor = conn.cursor()
+    query = f"UPDATE Details SET Number_Of_Details = Number_Of_Details + {result} WHERE Detail_ID = {Details_Id}"
+    cursor.execute(query)
+    conn.commit()
+    cursor.close()
 
     EmployeeReportMenu(message, bot)
 
