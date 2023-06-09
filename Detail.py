@@ -10,17 +10,19 @@ details = ['Detail_Name','Name_DCE','Workshop','Number_Of_Details']
 
 
 def db_details_val(Detail_Name: str,Name_DCE: str,Workshop: int,Number_Of_Details: int):
+    cursor = conn.cursor()
     cursor.execute('INSERT INTO Details (Detail_Name,Name_DCE,Workshop,Number_Of_Details) VALUES (?,?,?,?)', (Detail_Name,Name_DCE,Workshop,Number_Of_Details))
     conn.commit()
+    cursor.close()
 
 
 def DetailsMenu(message,bot):
     keyboard = telebot.types.ReplyKeyboardMarkup(row_width=1)
-    addEmployeeButton = telebot.types.KeyboardButton("1")
-    editEmployeeButton = telebot.types.KeyboardButton("2")
-    findEmployeeButton = telebot.types.KeyboardButton("3")
+    showDetailsButton = telebot.types.KeyboardButton("1")
+    addDetailButton = telebot.types.KeyboardButton("2")
+    findDetailButton = telebot.types.KeyboardButton("3")
     backButton = telebot.types.KeyboardButton("Назад")
-    keyboard.add(addEmployeeButton, editEmployeeButton, findEmployeeButton,backButton)
+    keyboard.add(showDetailsButton, addDetailButton, findDetailButton,backButton)
     bot.send_message(message.chat.id, 'Выберите пункт меню:')
     bot.send_message(message.chat.id, "\n1. Посмотреть все детали"
                                       "\n2. Добавить деталь"
@@ -45,6 +47,7 @@ def Details_Menu_Handler(message,bot):
 
 
 def Find_Detail(message,bot):
+    cursor = conn.cursor()
     query = "SELECT * FROM Details WHERE Detail_Name LIKE '%" + message.text.lower() + "%'"
     cursor.execute(query)
     result = cursor.fetchall()
@@ -55,10 +58,11 @@ def Find_Detail(message,bot):
         DetailsMenu(message,bot)
     else:
         for row in result:
-            detail_id, detail_name, number_of_details = row
-            details_info = f"ID: {detail_id}\nНазвание детали: {detail_name}\nКоличество деталей: {number_of_details}"
+            detail_id, detail_name,detail_DCE,workshop, number_of_details = row
+            details_info = f"ID: {detail_id}\nНазвание детали: {detail_name}\nСборочное название детали: {detail_DCE}\nЦех: {workshop}\nКоличество деталей: {number_of_details}"
             bot.send_message(message.chat.id, details_info)
 
+        cursor.close()
         DetailsMenu(message,bot)
 
 def get_Detail_Name(message,bot):
@@ -93,19 +97,23 @@ def get_Number_Of_Details(message,bot):
 
     bot.send_message(message.chat.id, "Добавлена новая деталь: ")
 
-    details_info = f"Наименование Детали: {details[0]}\nКоличество Деталей: {details[1]}"
+    details_info = f"Наименование Детали: {details[0]}\nСборочное название детали: {details[1]}\nЦех производства детали: {details[2]}\nКоличество деталей: {details[3]}"
     bot.send_message(message.chat.id, details_info)
 
     DetailsMenu(message,bot)
 
+
+
 def DetailsList(message,bot):
+    cursor = conn.cursor()
     query = "SELECT Detail_ID,Detail_Name FROM Details"
     cursor.execute(query)
     result = cursor.fetchall()
 
     for row in result:
-        detail_id, detail_name,detail_name_DCE,detail_workshop,number_of_Details = row
-        detail_info = f"ID: {detail_id}\nНаименование детали: {detail_name}\nСборочное назв. детали: {detail_name_DCE}\nЦех: {detail_workshop}\nКоличество деталей: {number_of_Details}"
+        detail_id, detail_name = row
+        detail_info = f"ID: {detail_id}\nНаименование детали: {detail_name}"
         bot.send_message(message.chat.id, detail_info)
 
+    cursor.close()
     DetailsMenu(message,bot)

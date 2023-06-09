@@ -1,17 +1,18 @@
 import telebot
 import sqlite3
 
-
 conn = sqlite3.connect('db/ZagoskyDB.db', check_same_thread=False)
 cursor = conn.cursor()
 
 
-colums = ['First_Name','Second_Name','Third_Name','Email','Phone_Number','Date_Of_Birth','Address','Department','Position','Hire_Date','Employment_Status','Word_Schedule','Vacation_Days']
+colums = ['First_Name','Second_Name','Third_Name','Email','Phone_Number','Date_Of_Birth','Address','Department','Position','Hire_Date','Employment_Status','Word_Schedule','Vacation_Days','Device_ID']
 
 
-def db_table_val(First_Name: str,Second_Name: str,Third_Name: str,Email: str,Phone_Number: str,Date_Of_Birth: str,Address: str,Department: str,Position: str,Hire_Date: str,Employment_Status: str,Word_Schedule : str,Vacation_Days: int, Employee_ID: int):
-    cursor.execute('INSERT INTO Employees (First_Name,Second_Name,Third_Name,Email,Phone_Number,Date_Of_Birth,Address,Department,Position,Hire_Date,Employment_Status,Word_Schedule,Vacation_Days,Employee_ID) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?)', (First_Name, Second_Name, Third_Name, Email, Phone_Number, Date_Of_Birth , Address,Department,Position,Hire_Date,Employment_Status,Word_Schedule,Vacation_Days,Employee_ID))
+def db_table_val(First_Name: str,Second_Name: str,Third_Name: str,Email: str,Phone_Number: str,Date_Of_Birth: str,Address: str,Department: str,Position: str,Hire_Date: str,Employment_Status: str,Word_Schedule : str,Vacation_Days: int, Device_ID: str):
+    cursor = conn.cursor()
+    cursor.execute('INSERT INTO Employees (First_Name,Second_Name,Third_Name,Email,Phone_Number,Date_Of_Birth,Address,Department,Position,Hire_Date,Employment_Status,Word_Schedule,Vacation_Days,Device_ID) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?)', (First_Name, Second_Name, Third_Name, Email, Phone_Number, Date_Of_Birth , Address,Department,Position,Hire_Date,Employment_Status,Word_Schedule,Vacation_Days,Device_ID))
     conn.commit()
+    cursor.close()
 
 
 def RegistrationEmployee(message,bot):
@@ -32,19 +33,17 @@ def EmployeeMenu(message,bot):
 
 def Employee_Menu_Handler(message,bot):
     if message.text == '1':
-        bot.send_message(message.chat.id, 'Введите имя сотрудника')
-        bot.register_next_step_handler(message, get_First_Name,bot)
-    elif message.text == '2':
         bot.send_message(message.chat.id, 'Введите фамилию сотрудника, которого вы ищите:')
         bot.register_next_step_handler(message, Find_Employee,bot)
-    elif message.text == 'Назад' or message.text == '3':
+    elif message.text == 'Назад' or message.text == '2':
         bot.send_message(message.chat.id, "/start")
     else:
         EmployeeMenu(message,bot)
 
 
 def Find_Employee(message,bot):
-    query = "SELECT * FROM Employees WHERE Second_Name = ?"
+    cursor = conn.cursor()
+    query = "SELECT Employee_ID,First_Name,Second_Name,Third_Name,Email,Phone_Number,Date_Of_Birth,Address,Department,Position,Hire_Date,Employment_Status,Word_Schedule,Vacation_Days FROM Employees WHERE Second_Name = ?"
     cursor.execute(query, (message.text,))
     result = cursor.fetchall()
 
@@ -58,6 +57,7 @@ def Find_Employee(message,bot):
             employee_info = f"ID: {employee_id}\nИмя: {first_name}\nФамилия: {second_name}\nОтчество: {third_name}\nEmail: {email}\nНомер телефона: {phone_number}\nДата рождения: {date_of_birth}\nАдрес: {address}\nОтдел: {department}\nДолжность: {position}\nДата приема на работу: {hire_date}\nСтатус занятости: {employment_status}\nРабочий график: {work_schedule}\nКоличество отпускных дней: {vacation_days}"
             bot.send_message(message.chat.id, employee_info)
 
+        cursor.close()
         Find_Menu(message,bot)
 
 
@@ -110,71 +110,77 @@ def Update_Employee(message,id_employee,bot):
     if message.text == '1':
         bot.send_message(message.chat.id, 'Введите новое Имя для сотрудника с ID: '+id_employee)
         column_name = 'First_Name'
-        bot.register_next_step_handler(message,Save_Employee_Update, id_employee,column_name)
+        bot.register_next_step_handler(message,Save_Employee_Update, id_employee,column_name,bot)
     if message.text == '2':
         bot.send_message(message.chat.id, 'Введите новую Фамилию для сотрудника с ID: '+id_employee)
         column_name = 'Second_Name'
-        bot.register_next_step_handler(message,Save_Employee_Update, id_employee,column_name)
+        bot.register_next_step_handler(message,Save_Employee_Update, id_employee,column_name,bot)
     if message.text == '3':
         bot.send_message(message.chat.id, 'Введите новое Отчество для сотрудника с ID: '+id_employee)
         column_name = 'Third_Name'
-        bot.register_next_step_handler(message,Save_Employee_Update, id_employee,column_name)
+        bot.register_next_step_handler(message,Save_Employee_Update, id_employee,column_name,bot)
     if message.text == '4':
         bot.send_message(message.chat.id, 'Введите новый Email для сотрудника с ID: '+id_employee)
         column_name = 'Email'
-        bot.register_next_step_handler(message,Save_Employee_Update, id_employee,column_name)
+        bot.register_next_step_handler(message,Save_Employee_Update, id_employee,column_name,bot)
     if message.text == '5':
         bot.send_message(message.chat.id, 'Введите новый Номер Мобильного Телефона для сотрудника с ID: '+id_employee)
         column_name = 'Phone_Number'
-        bot.register_next_step_handler(message,Save_Employee_Update, id_employee,column_name)
+        bot.register_next_step_handler(message,Save_Employee_Update, id_employee,column_name,bot)
     if message.text == '6':
         bot.send_message(message.chat.id, 'Введите новую Дату Рождения для сотрудника с ID: '+id_employee)
         column_name = 'Date_Of_Birth'
-        bot.register_next_step_handler(message,Save_Employee_Update, id_employee,column_name)
+        bot.register_next_step_handler(message,Save_Employee_Update, id_employee,column_name,bot)
     if message.text == '7':
         bot.send_message(message.chat.id, 'Введите новый Адрес проживания для сотрудника с ID: '+id_employee)
         column_name = 'Address'
-        bot.register_next_step_handler(message,Save_Employee_Update, id_employee,column_name)
+        bot.register_next_step_handler(message,Save_Employee_Update, id_employee,column_name,bot)
     if message.text == '8':
         bot.send_message(message.chat.id, 'Введите новый Отдел для сотрудника с ID: '+id_employee)
         column_name = 'Department'
-        bot.register_next_step_handler(message,Save_Employee_Update, id_employee,column_name)
+        bot.register_next_step_handler(message,Save_Employee_Update, id_employee,column_name,bot)
     if message.text == '9':
         bot.send_message(message.chat.id, 'Введите новую Должность для сотрудника с ID: '+id_employee)
         column_name = 'Position'
-        bot.register_next_step_handler(message,Save_Employee_Update, id_employee,column_name)
+        bot.register_next_step_handler(message,Save_Employee_Update, id_employee,column_name,bot)
     if message.text == '10':
         bot.send_message(message.chat.id, 'Введите новую Дату Трудоустройства для сотрудника с ID: '+id_employee)
         column_name = 'Hire_Date'
-        bot.register_next_step_handler(message,Save_Employee_Update, id_employee,column_name)
+        bot.register_next_step_handler(message,Save_Employee_Update, id_employee,column_name,bot)
     if message.text == '11':
         bot.send_message(message.chat.id, 'Введите новую Форму Занятости для сотрудника с ID: '+id_employee)
         column_name = 'Employment_Status'
-        bot.register_next_step_handler(message,Save_Employee_Update, id_employee,column_name)
+        bot.register_next_step_handler(message,Save_Employee_Update, id_employee,column_name,bot)
     if message.text == '12':
         bot.send_message(message.chat.id, 'Введите новое Рассписание для сотрудника с ID: '+id_employee)
         column_name = 'Work_Schedule'
-        bot.register_next_step_handler(message,Save_Employee_Update, id_employee,column_name)
+        bot.register_next_step_handler(message,Save_Employee_Update, id_employee,column_name,bot)
     if message.text == '13':
         bot.send_message(message.chat.id, 'Введите новое количество дней отпуска для сотрудника с ID: '+id_employee)
         column_name = 'Vacation_Days'
-        bot.register_next_step_handler(message,Save_Employee_Update, id_employee,column_name)
+        bot.register_next_step_handler(message,Save_Employee_Update, id_employee,column_name,bot)
 
-def Save_Employee_Update(message, employee_id, column_name):
+def Save_Employee_Update(message, employee_id, column_name,bot):
     query = f"UPDATE Employees SET {column_name} = ? WHERE Employee_ID = ?"
     data = (message.text, employee_id)
 
+    cursor = conn.cursor()
     cursor.execute(query, data)
     conn.commit()
+    cursor.close()
+    EmployeeMenu(message,bot)
 
 
 def Delete_Employee(message,bot):
+    cursor = conn.cursor()
     query = "DELETE FROM Employees WHERE Employee_ID = ?"
 
     cursor.execute(query, message.text)
     conn.commit()
-
+    cursor.close()
     bot.send_message(message.chat.id, 'Сотрудник с ID: '+message.text+' был удалён')
+    bot.send_message(message.chat.id, "/start")
+
 
 
 def get_First_Name(message,bot):
@@ -263,16 +269,16 @@ def get_Word_Schedule(message,bot):
 
 def get_Vacation_Days(message,bot):
     result = message.text
-    colums[13] = result
+    colums[12] = result
 
     db_table_val(First_Name=colums[0], Second_Name=colums[1], Third_Name=colums[2],
                          Email=colums[3], Phone_Number=colums[4], Date_Of_Birth=colums[5], Address=colums[6],
                          Department=colums[7], Position=colums[8], Hire_Date=colums[9], Employment_Status=colums[10],
-                         Word_Schedule=colums[11], Vacation_Days=colums[12],Employee_ID=message.chat.id)
+                         Word_Schedule=colums[11], Vacation_Days=colums[12],Device_ID=message.from_user.id)
 
     bot.send_message(message.chat.id, "Вы успешно зарегестрированны")
 
-    employee_info = f"Имя: {colums[0]}\nФамилия: {colums[1]}\nОтчество: {colums[2]}\nEmail: {colums[3]}\nНомер телефона: {colums[4]}\nДата рождения: {colums[5]}\nАдрес: {colums[6]}\nОтдел: {colums[7]}\nДолжность: {colums[8]}\nДата приема на работу: {colums[9]}\nСтатус занятости: {colums[10]}\nРабочий график: {colums[11]}\nКоличество отпускных дней: {colums[12]}\nEmployee_ID: {colums[13]}"
+    employee_info = f"Имя: {colums[0]}\nФамилия: {colums[1]}\nОтчество: {colums[2]}\nEmail: {colums[3]}\nНомер телефона: {colums[4]}\nДата рождения: {colums[5]}\nАдрес: {colums[6]}\nОтдел: {colums[7]}\nДолжность: {colums[8]}\nДата приема на работу: {colums[9]}\nСтатус занятости: {colums[10]}\nРабочий график: {colums[11]}\nКоличество отпускных дней: {colums[12]}"
     bot.send_message(message.chat.id, employee_info)
 
-    EmployeeMenu(message,bot)
+    bot.send_message(message.chat.id, "/start")
