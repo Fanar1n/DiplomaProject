@@ -24,8 +24,7 @@ def start_message(message):
         detailsButton = telebot.types.KeyboardButton("2")
         employeeReportButton = telebot.types.KeyboardButton("3")
         productionReportButton = telebot.types.KeyboardButton("4")
-        invoiceButton = telebot.types.KeyboardButton("5")
-        keyboard.add(employeeButton, detailsButton,employeeReportButton,productionReportButton,invoiceButton)
+        keyboard.add(employeeButton, detailsButton,employeeReportButton,productionReportButton)
         bot.send_message(message.chat.id, "Выберите пункт из меню что вы хотите сделать"
                                           "\n1.Сотрудники"
                                           "\n2.Детали"
@@ -46,8 +45,6 @@ def get_text_messages(message):
         EmployeeReport.EmployeeReportMenu(message,bot)
     elif message.text == '4':
         ProductionReport.ProductionReport(message,bot)
-    elif message.text == '5':
-        Invoice.InvoiceMenu(message,bot)
     else:
         start_message(message)
 
