@@ -1,8 +1,6 @@
 import telebot
 import sqlite3
-import Employee
 import datetime
-
 
 
 conn = sqlite3.connect('db/ZagoskyDB.db', check_same_thread=False)

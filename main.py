@@ -24,12 +24,14 @@ def start_message(message):
         detailsButton = telebot.types.KeyboardButton("2")
         employeeReportButton = telebot.types.KeyboardButton("3")
         productionReportButton = telebot.types.KeyboardButton("4")
-        keyboard.add(employeeButton, detailsButton,employeeReportButton,productionReportButton)
+        invoiceButton = telebot.types.KeyboardButton("5")
+        keyboard.add(employeeButton, detailsButton,employeeReportButton,productionReportButton,invoiceButton)
         bot.send_message(message.chat.id, "Выберите пункт из меню что вы хотите сделать"
                                           "\n1.Сотрудники"
                                           "\n2.Детали"
                                           "\n3.Отчёт сотрудника"
-                                          "\n4.Отчёт предприятия за Год", reply_markup=keyboard)
+                                          "\n4.Отчёт предприятия за Год"
+                                          "\n5.Накладная на внутреннее перемещение", reply_markup=keyboard)
     else:
         Employee.RegistrationEmployee(message, bot)
 
@@ -44,6 +46,8 @@ def get_text_messages(message):
         EmployeeReport.EmployeeReportMenu(message,bot)
     elif message.text == '4':
         ProductionReport.ProductionReport(message,bot)
+    elif message.text == '5':
+        Invoice.InvoiceMenu(message,bot)
     else:
         start_message(message)
 
